@@ -84,6 +84,8 @@ terra_vrm <- function(x, n = 1, s = 3, filepath = "",outname = "vrm.tif") {
   vrm.fun <- function(x, y, z) {sqrt((x^2) + (y^2) + (z^2))}
   sum_sds <- terra::sds(x.sum, y.sum, z.sum)
   r <- terra::lapp(sum_sds, fun = vrm.fun, cores = n, filename = vrmout, wopt = wopt)
+  rm(sum_sds,x.sum,y.sum,z.sum)
+  do.call(file.remove,list(xsumout,ysumout,zsumout))
   
   print('Calculating final vrm...')
   vrm.fun.final <- function(r) 1 - (r / scale.factor) 
