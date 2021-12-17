@@ -54,14 +54,16 @@ terra_vrm <- function(x, n = 1, s = 3, filepath = "",outname = "vrm.tif") {
   
   print('Calculating z raster...')
   cos.slp <- terra::app(slp, fun = cos, cores = n, filename = zout, wopt = wopt)
+  rm(slp)
+  file.remove(sout)
   
   print('Calculating x raster...')
-  sin.asp <- terra::app(asp, fun = sin, cores = n, filename = yout, wopt = wopt) * sin.slp
+  sin.asp <- terra::app(asp, fun = sin, cores = n, filename = xout, wopt = wopt) * sin.slp
   
   print('Calculating y raster...')
-  cos.asp <- terra::app(asp, fun = cos, cores = n, filename = xout, wopt = wopt) * sin.slp
-  rm(slp,asp,sin.slp)
-  do.call(file.remove,list(sout,aout,xyout))
+  cos.asp <- terra::app(asp, fun = cos, cores = n, filename = yout, wopt = wopt) * sin.slp
+  rm(asp,sin.slp)
+  do.call(file.remove,list(aout,xyout))
   
   print('Calculating x Sum...')
   x.sum <- terra::focal(sin.asp, w = s, fun="sum", filename = xsumout, wopt = wopt) 
