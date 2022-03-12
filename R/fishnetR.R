@@ -45,7 +45,13 @@ fishnetR <- function(shp,cell_size,n){
 
 #set.seed(1)
 
+#devtools::source_url("https://github.com/r2j2ritson/RSpatial_Wildlife/blob/main/R/fishnetR.R?raw=TRUE")
+
 #fishnet_sample <- fishnetR(shp = sim_resv, cell_size = 1000, n = 5)
 
 #plot(fishnet_sample,add = T)
 ##END NOT RUN
+
+## Call from GitHub
+#install.packages('devtools')
+#devtools::source_url("https://github.com/r2j2ritson/RSpatial_Wildlife/blob/main/R/fishnetR.R?raw=TRUE")
