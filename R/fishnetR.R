@@ -32,8 +32,8 @@ fishnetR <- function(shp,cell_size,n,stratify=TRUE){
   terra::vect(.) %>%
   terra::crop(.,terra::vect(shp)) %>% 
   sf::st_as_sf(.) %>%
-  dplyr::mutate(strata = rep(c(1:n),each=round(nrow(grid)/n))[1:nrow(grid)],
-                id = seq(1,nrow(grid), by=1)) %>%
+  dplyr::mutate(strata = rep(c(1:n),each=round(nrow(.)/n))[1:nrow(.)],
+                id = seq(1,nrow(.), by=1)) %>%
   sf::as_Spatial(.)
   #Stratify Random Sample
   if(stratify){
