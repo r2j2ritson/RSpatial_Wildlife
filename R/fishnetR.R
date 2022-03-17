@@ -28,7 +28,7 @@ fishnetR <- function(shp,cell_size,n,stratify=TRUE){
   #}
   require(dplyr)
   
-  grid <- sf::st_make_grid(shp, cellsize = cellsize, what = "polygons", square = T) %>% 
+  grid <- sf::st_make_grid(shp, cellsize = cell_size, what = "polygons", square = T) %>% 
   terra::vect(.) %>%
   terra::crop(.,terra::vect(shp)) %>% 
   sf::st_as_sf(.) %>%
