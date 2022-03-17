@@ -12,7 +12,7 @@
 # Returns shape file ('sf' object) of the randomly selected grid cells
 # Forthcoming: Cell size and sample size rules based on reservoir area, writing shapefile to a filepath
 
-fishnetR <- function(shp,cell_size,n,stratify=TRUE){
+fishnetR <- function(shp,cell_size,n,stratify=TRUE,s=1){
   if(!(class(shp) %in% c('sf','sfc','sfc_POLYGON'))){stop("Shape must be of class of `sf`")}
   
   ## Number of samples and cell size rules (forthcoming)
@@ -38,7 +38,8 @@ fishnetR <- function(shp,cell_size,n,stratify=TRUE){
 grid@data$strata <- ifelse(is.na(grid@data$strata),n,grid@data$strata)
 #Stratify Random Sample
 if(stratify){
-  i=1
+  set.seed(s)
+  i=sample(1:1000,1)
   repeat{
     i= i+1
     set.seed(i)
