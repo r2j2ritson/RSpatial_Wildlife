@@ -35,26 +35,27 @@ fishnetR <- function(shp,cell_size,n,stratify=TRUE){
   dplyr::mutate(strata = rep(c(1:n),each=round(nrow(.)/n))[1:nrow(.)],
                 id = seq(1,nrow(.), by=1)) %>%
   sf::as_Spatial(.)
-  #Stratify Random Sample
-  if(stratify){
-    i=1
-    repeat{
+grid@data$strata <- ifelse(is.na(grid@data$strata),n,grid@data$strata)
+#Stratify Random Sample
+if(stratify){
+  i=1
+  repeat{
     i= i+1
     set.seed(i)
     strat_rand_samp <- spatialEco::stratified.random(grid,strata = 'strata', n=1, reps = 1, replace = F) %>% sf::st_as_sf(.)
     if(any(sf::st_relate(strat_rand_samp, pattern = "F***1****",sparse=F)==T)==F){
       break
-      }
     }
-    return(strat_rand_samp)
+  }
+  return(strat_rand_samp)
   
   #Simple Random Sample
-  }else{
-    randsamp <- sample.int(length(grid_clip), size = n, replace=F)
-    locs <- grid[randsamp,]
-    sf::st_write(locs,filepath) #write grids to filepath (forthcoming)
-    return(locs)
-    }
+}else{
+  randsamp <- sample.int(length(grid_clip), size = n, replace=F)
+  locs <- grid[randsamp,]
+  sf::st_write(locs,filepath) #write grids to filepath (forthcoming)
+  return(locs)
+}
 }
 
 ### Example
