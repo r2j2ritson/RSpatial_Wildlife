@@ -64,3 +64,9 @@ assign_hourlyrate <- function(df,id="Animal_Season",timestamp = "DateTime",coord
   df$Rt_hrly <- ifelse(df$firstRec==1, NA, df$sl / df$dt) 
   return(df)
 }
+
+# Calculate 95% Confidence Interval (UCL) of Hourly Movement Rate
+get95CI <- function(df,rt="Rt_hrly") {
+  ucl <- mean(df[[rt]],na.rm=T) + qnorm(0.975)*sd(df[[rt]],na.rm=T) / sqrt(length(na.omit(df[[rt]])))
+  return(ucl)
+}
