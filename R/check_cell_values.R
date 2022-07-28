@@ -14,3 +14,14 @@ check_cell_values_chunk <- function(r1,r2){
   }
   return(rc)
 }
+
+# simple function for integer factorization
+get_integer_factors <- function(n){
+  out <- NULL
+  for(i in 1:n){
+    if((n %% i)==0){
+      out <- if(is.null(out)){i}else{c(out,i)}
+    }
+  }
+  return(out)
+}
