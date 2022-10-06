@@ -40,6 +40,15 @@
 #'   scale_x_continuous(breaks = c(0,45,90,135,180,225,270,315))
 #' dfsw
 #'
+#' df$Degrees_from_North <- convert_aspect(df$Aspect, 360) # Degrees from North
+#' data <- data.frame(dir = df$Aspect, mag = df$Degrees_from_North)
+#' dfn <-ggplot(data, aes(x=dir, y=mag)) + 
+#'   geom_bar(stat='identity') + 
+#'   coord_polar() + 
+#'   ggtitle("Degrees from North") +
+#'   scale_x_continuous(breaks = c(0,45,90,135,180,225,270,315))
+#' dfn
+#'
 #' convert_aspect(aspect = 0, anchor = 180) #Due North is 180 degrees from due South
 #' convert_aspect(aspect = 0, anchor = 225) #Due North is 135 degrees from due SouthWest
 #'
