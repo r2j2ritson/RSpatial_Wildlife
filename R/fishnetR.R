@@ -12,8 +12,8 @@
 # Returns shape file ('sf' object) of the randomly selected grid cells
 # Forthcoming: Cell size and sample size rules based on reservoir area, writing shapefile to a filepath
 
-fishnetR <- function(shp,cell_size,n,stratify=TRUE,s=1){
-  if(!(class(shp) %in% c('sf','sfc','sfc_POLYGON'))){stop("Shape must be of class of `sf`")}
+fishnetR <- function(shp,cell_size,n,stratify=TRUE,seed=1){
+  #if(!(class(shp) %in% c('sf','sfc','sfc_POLYGON'))){stop("Shape must be of class of `sf`")}
   
   ## Number of samples and cell size rules (forthcoming)
   #if(is.null(n)){
@@ -28,36 +28,82 @@ fishnetR <- function(shp,cell_size,n,stratify=TRUE,s=1){
   #}
   require(dplyr)
   
+  # Create grid (fishnet)
   grid <- sf::st_make_grid(shp, cellsize = cell_size, what = "polygons", square = T) %>% 
-  terra::vect(.) %>%
-  terra::crop(.,terra::vect(shp)) %>% 
-  sf::st_as_sf(.) %>%
-  dplyr::mutate(strata = rep(c(1:n),each=round(nrow(.)/n))[1:nrow(.)],
-                id = seq(1,nrow(.), by=1)) %>%
-  sf::as_Spatial(.)
-grid@data$strata <- ifelse(is.na(grid@data$strata),n,grid@data$strata)
-#Stratify Random Sample
-if(stratify){
-  set.seed(s)
-  i=sample(1:1000,1)
-  repeat{
-    i= i+1
-    set.seed(i)
-    strat_rand_samp <- spatialEco::stratified.random(grid,strata = 'strata', n=1, reps = 1, replace = F) %>% sf::st_as_sf(.)
-    if(any(sf::st_relate(strat_rand_samp, pattern = "F***1****",sparse=F)==T)==F){
-      break
-    }
-  }
-  return(strat_rand_samp)
+    terra::vect(.) %>%
+    terra::crop(.,terra::vect(shp)) %>% 
+    sf::st_as_sf(.) %>%
+    sf::st_cast(.,"POLYGON") %>%
+    dplyr::mutate(id = seq(1,nrow(.), by=1))
   
-  #Simple Random Sample
-}else{
-  randsamp <- sample.int(length(grid_clip), size = n, replace=F)
-  locs <- grid[randsamp,]
-  sf::st_write(locs,filepath) #write grids to filepath (forthcoming)
-  return(locs)
+  #Calculate Stratas
+  stratas <- rep(c(1:n),each=floor(nrow(grid)/n))
+  
+  # randomly assign remainder
+  extra <- sample.int(n,nrow(grid)%%n,F)
+  stratas <- sort(c(stratas,extra))
+  
+  # Set stratas
+  grid <- dplyr::mutate(grid,strata = as.factor(stratas))
+    
+  #Stratify Random Sample
+  set.seed(seed)
+  if(stratify){
+    i=sample(1:1000,1)
+    repeat{
+      i= i+1
+      set.seed(i)
+      #Begin essential code from spatialEco::stratified_random()
+      spx <- sf::st_drop_geometry(grid)
+      if(!inherits(spx[,"strata"], "factor")) 
+        spx[,"strata"] <- factor(spx[,"strata"]) 
+      spx$REP <- NA
+      reps=1
+      nn=1
+      results <- list()
+      for(j in levels(spx[, "strata"])) {
+        d <- spx[spx[,"strata"] == j,]
+        d$rowname <- rownames(d)
+        if(nrow(d) > n) {  	
+          for (i in 1:reps) {	
+            s <- lapply(1, function(ij) {
+              d[sample(1:nrow(d), nn),]})
+            s[[1]]$REP <- i
+            results[[paste(j,i,sep="_")]] <-s[[1]] 
+          }
+        } else {
+          d$REP <- 1
+          results[[paste(j,i,sep="_")]] <- d
+        }
+      }
+      results
+      results <- do.call(rbind, results)
+      replace=F
+      if(!replace){
+        if(any(duplicated(results$rowname))){ #previous spatialEco code wiped out all results when sampling without replacement
+          results <- results[-which(duplicated(results$rowname)),]
+        }
+      }
+      results <- stats::na.omit(results[,c("rowname","REP")])
+      results <- merge(grid, results, by.y="rowname", by.x = 'row.names', 
+                       all.x = FALSE, all.y = TRUE)
+      strat_rand_samp <- results %>% 
+        sf::st_as_sf(.)
+      if(any(sf::st_relate(strat_rand_samp, pattern = "F***1****",sparse=F)==T)==F && nrow(strat_rand_samp)==21){ #make sure random selections from each strata do not touch
+        break
+      }
+    }
+    return(list(strat_rand_samp = strat_rand_samp, grid = grid)) #returns list containing the random sample shapes as well as the base 'fishnet' grid (croped to shape)
+    
+    #Simple Random Sample
+  }else{
+    randsamp <- sample.int(nrow(grid), size = n, replace=F) 
+    locs <- grid[randsamp,]
+    #sf::st_write(locs,filepath) #write grids to filepath (forthcoming)
+    return(list(locs = locs, grid = grid) #returns list containing the random sample shapes as well as the base 'fishnet' grid (croped to shape)
+  }
 }
-}
+
 
 ### Example
 ##NOT RUN
