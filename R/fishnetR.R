@@ -1,13 +1,15 @@
 ##------- IDFG-Fish R --------##
 # R translation of ArcMap 'fishnet' tool, 
 # customized for random sampling of reservoirs for gillnets
-# By: Robert Ritson, 3/11/2022
+# By: Robert Ritson, 3/14/2023
 ##---------------------------###
 ## fishnetR function ###
 # Description - randomly sample reservoirs for gillnet sampling
 # shp - 'sf' object of reservoir shape
 # cell_size - numeric, how large grid cells should be in meters
 # n - numeric, how many grid cells to randomly sample
+# stratify - boolean, whether to stratify the random sample
+# seed - numeric, used to generate (and repeat) a random sample
 
 # Returns shape file ('sf' object) of the randomly selected grid cells
 # Forthcoming: Cell size and sample size rules based on reservoir area, writing shapefile to a filepath
