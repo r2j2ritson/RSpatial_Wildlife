@@ -102,7 +102,7 @@ fishnetR <- function(shp,cell_size,n,stratify=TRUE,seed=1){
     randsamp <- sample.int(nrow(grid), size = n, replace=F) 
     locs <- grid[randsamp,]
     #sf::st_write(locs,filepath) #write grids to filepath (forthcoming)
-    return(list(locs = locs, grid = grid) #returns list containing the random sample shapes as well as the base 'fishnet' grid (croped to shape)
+    return(list(locs = locs, grid = grid)) #returns list containing the random sample shapes as well as the base 'fishnet' grid (croped to shape)
   }
 }
 
