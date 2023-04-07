@@ -47,10 +47,15 @@ fishnetR <- function(shp,cell_size,n,stratify=TRUE,seed=1){
   
   # Set stratas
   grid <- dplyr::mutate(grid,strata = as.factor(stratas))
-    
+  
   #Stratify Random Sample
   set.seed(seed)
-  if(stratify){
+  if(stratify==F){
+    randsamp <- sample.int(nrow(grid), size = n, replace=F) 
+    locs <- grid[randsamp,]
+    #sf::st_write(locs,filepath) #write grids to filepath (forthcoming)
+    return(list(locs = locs, grid = grid)) #returns list containing the random sample shapes as well as the base 'fishnet' grid (croped to shape)
+  }else{
     i=sample(1:1000,1)
     repeat{
       i= i+1
@@ -91,38 +96,25 @@ fishnetR <- function(shp,cell_size,n,stratify=TRUE,seed=1){
                        all.x = FALSE, all.y = TRUE)
       strat_rand_samp <- results %>% 
         sf::st_as_sf(.)
-      if(any(sf::st_relate(strat_rand_samp, pattern = "F***1****",sparse=F)==T)==F && nrow(strat_rand_samp)==21){ #make sure random selections from each strata do not touch
+      if(any(sf::st_relate(strat_rand_samp, pattern = "F***1****",sparse=F)==T)==F && nrow(strat_rand_samp)==n){ #make sure random selections from each strata do not touch
         break
       }
     }
     return(list(strat_rand_samp = strat_rand_samp, grid = grid)) #returns list containing the random sample shapes as well as the base 'fishnet' grid (croped to shape)
-    
-    #Simple Random Sample
-  }else{
-    randsamp <- sample.int(nrow(grid), size = n, replace=F) 
-    locs <- grid[randsamp,]
-    #sf::st_write(locs,filepath) #write grids to filepath (forthcoming)
-    return(list(locs = locs, grid = grid)) #returns list containing the random sample shapes as well as the base 'fishnet' grid (croped to shape)
   }
 }
 
-
 ### Example
 ##NOT RUN
-#require(dplyr)
-#sim_resv <- sf::st_point(x = c(-71.06, -71.06), dim = "XYZ") %>%
-#  sf::st_sfc(crs = 32619) %>%
-#  sf::st_buffer(units::set_units(8.04672, km)) #create simulated reservoir (a circle)
-
-#plot(sim_resv)
-
-#set.seed(1)
-
-#devtools::source_url("https://github.com/r2j2ritson/RSpatial_Wildlife/blob/main/R/fishnetR.R?raw=TRUE")
-
-#fishnet_sample <- fishnetR(shp = sim_resv, cell_size = 1000, n = 5)
-
-#plot(fishnet_sample,add = T)
+# require(dplyr)
+# sim_resv <- sf::st_point(x = c(-71.06, -71.06), dim = "XYZ") %>%
+# sf::st_sfc(crs = 32619) %>%
+# sf::st_buffer(units::set_units(8.04672, km)) #create simulated reservoir (a circle)
+# plot(sim_resv)
+# set.seed(1)
+# devtools::source_url("https://github.com/r2j2ritson/RSpatial_Wildlife/blob/main/R/fishnetR.R?raw=TRUE")
+# fishnet_sample <- fishnetR(shp = sim_resv, cell_size = 1000, n = 5)
+# plot(fishnet_sample$strat_rand_samp$geometry,add = T)
 ##END NOT RUN
 
 ## Call from GitHub
