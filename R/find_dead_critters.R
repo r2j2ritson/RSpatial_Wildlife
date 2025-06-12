@@ -26,6 +26,16 @@
 #' ## 2        17      26 89.95500
 #' 
 find_dead_critters <- function(sl,dt,min_sl,min_dur,time_unit="hours"){
+  if(!inherits(dt,"POSIXt")){
+    stop("dt must be a POSIXct object.")
+    }
+  if(!inherits(c(df$sl,min_dur,min_sl),"numeric")){
+    stop("sl, min_sl, and min_dur must be numeric.")
+    }
+  valid_units <- c("secs","mins","hours","days","weeks")
+  if(!(time_unit %in% valid_units)){
+    stop(sprintf("time_unit must be one of: %s",paste(valid_units,collapse=", ")))
+    }
   # Set condition
   condition <- sl < min_sl
   min_dur <- as.difftime(min_dur, units = time_unit)
