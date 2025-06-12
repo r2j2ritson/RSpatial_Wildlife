@@ -37,7 +37,7 @@ find_dead_critters <- function(sl,dt,min_sl,min_dur,time_unit="hours"){
   rind <- mapply(function(start,len) c(start,start+len-1),
                  starts[tr],r$lengths[tr],SIMPLIFY = F)
   # filter diff time
-  timdiff <- Filter(function(idx) difftime(dt[idx[2]],dt[idx[1]],units = 'sec') >= min_dur, rind)
+  timdiff <- Filter(function(idx) difftime(dt[idx[2]],dt[idx[1]],units = units(min_dur)) >= min_dur, rind)
   
   res_df <- data.frame(start_ind = sapply(timdiff, `[`, 1),
                        end_ind = sapply(timdiff, `[`, 2),
